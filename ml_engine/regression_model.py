@@ -1,5 +1,5 @@
 from sklearn.ensemble import RandomForestRegressor
-from base_model import BaseModel
+from ml_engine.base_model import BaseModel
 
 class CarPriceModel(BaseModel):
 

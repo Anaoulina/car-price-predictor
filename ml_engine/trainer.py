@@ -1,5 +1,5 @@
 import joblib
-from regression_model import CarPriceModel
+from ml_engine.regression_model import CarPriceModel
 from data_pipeline.scraper.processor import load_data, preprocess
 
 # Load dataset
