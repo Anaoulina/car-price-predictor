@@ -1,25 +1,23 @@
 import joblib
+import numpy as np
 
 MODEL_PATH = "ml_engine/models/car_price_model.pkl"
 
-model = None
-
-
-def load_model():
-    global model
-    if model is None:
-        model = joblib.load(MODEL_PATH)
-    return model
+model = joblib.load(MODEL_PATH)
 
 
 def predict_price(data):
-    model = load_model()
+    try:
+        input_data = np.array([[
+            data.brand,
+            data.year,
+            data.mileage,
+            data.fuel
+        ]])
 
-    input_data = [[
-        data.brand,
-        data.year,
-        data.mileage,
-        data.fuel
-    ]]
+        prediction = model.predict(input_data)
+        return float(prediction[0])
 
-    return model.predict(input_data)[0]
+    except Exception as e:
+        print("ERROR:", e)
+        return str(e)
