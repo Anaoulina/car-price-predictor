@@ -1,46 +1,49 @@
-import os
 import pandas as pd
+from ml_engine.base_model import BaseModel
 from ml_engine.regression_model import CarPriceModel
-
-# Configuration
-MODEL_DIR = "models"
-MODEL_PATH = os.path.join(MODEL_DIR, "car_price_model.pkl")
-
-def create_dummy_data():
-    """Creates temporary training data until the Scraping pipeline is ready."""
+from ml_engine.persistence import ModelPersistence
+import time
+# ----------------- Decorator for Timing ----------------- #
+def time_it(func):
+    """Decorator to measure execution time of the ML pipeline."""
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        print(f"⏳ Starting [{func.__name__}]...")
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"⏱️ Finished [{func.__name__}] in {round(end_time - start_time, 4)} seconds.\n")
+        return result
+    return wrapper
+# -------------------------------------------------------- #
+def get_dummy_data():
     data = {
-        'year': [2010, 2015, 2018, 2020, 2022],
-        'mileage': [150000, 90000, 50000, 20000, 5000],
-        'engine_size': [1.4, 1.6, 2.0, 1.5, 2.0],
-        'price': [50000, 90000, 140000, 180000, 220000] 
+        'year': [2010, 2015, 2018, 2020, 2022, 2023],
+        'mileage': [150000, 80000, 50000, 20000, 5000, 1000], 
+        'engine_size': [1.4, 1.6, 2.0, 1.5, 2.0, 3.0], 
+        'price': [50000, 90000, 140000, 180000, 220000, 300000]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df.drop(columns=['price']), df['price']
 
-def run_training():
-    print("🚀 Starting ML Pipeline...")
-
-    # 1. Load Data
-    print("📊 Loading data...")
-    df = create_dummy_data()
-    X = df.drop(columns=['price'])
-    y = df['price']
-
-    # 2. Initialize Model
-    print("⚙️ Initializing Model...")
-    model = CarPriceModel(n_estimators=100, max_depth=10)
-
-    # 3. Train Model
-    print("🧠 Training the model...")
-    model.train(X, y)
-
-    # 4. Evaluate Model
+@time_it
+def run_pipeline(model: BaseModel, persistence: ModelPersistence, save_path: str):
+    """
+    Dependency Inversion: This function depends on Abstractions (BaseModel),
+    not concrete classes.
+    """
+    X, y = get_dummy_data()
+    
+    print(f"🧠 Training model...")
+    best_params = model.tune_and_train(X, y)
+    print(f"✨ Best Params: {best_params}")
+    
     metrics = model.evaluate(X, y)
-    print(f"✅ Model Evaluation Metrics: {metrics}")
-
-    # 5. Save Model for Backend
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    model.save_model(MODEL_PATH)
-    print(f"💾 Model saved successfully at: {MODEL_PATH}")
+    print(f"✅ Metrics: {metrics}")
+    
+    persistence.save(model.model, save_path) 
 
 if __name__ == "__main__":
-    run_training()
+    my_model = CarPriceModel()
+    my_persistence = ModelPersistence()
+    
+    run_pipeline(my_model, my_persistence, "models/car_price_model.pkl")
