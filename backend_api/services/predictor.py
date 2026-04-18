@@ -1,23 +1,22 @@
-import joblib
-import numpy as np
+import pandas as pd
+from ml_engine.persistence import ModelPersistence
 
 MODEL_PATH = "ml_engine/models/car_price_model.pkl"
-
-model = joblib.load(MODEL_PATH)
-
+try:
+    model = ModelPersistence.load(MODEL_PATH)
+except Exception as e:
+    print(f"❌ Failed to load model: {e}")
+    model = None
 
 def predict_price(data):
     try:
-        input_data = np.array([[
-            data.brand,
-            data.year,
-            data.mileage,
-            data.fuel
-        ]])
+    
+        input_df = pd.DataFrame([data.dict()])
 
-        prediction = model.predict(input_data)
+        prediction = model.predict(input_df)
+        
         return float(prediction[0])
 
     except Exception as e:
-        print("ERROR:", e)
-        return str(e)
+        print("ERROR during prediction:", e)
+        return {"error": str(e)}
