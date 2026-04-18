@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: devops_mlops/docker/backend.Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../..:/app
+
+  frontend:
+    platform: linux/amd64   # ✅ ADD THIS LINE
+    build:
+      context: ../..
+      dockerfile: devops_mlops/docker/frontend.Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
