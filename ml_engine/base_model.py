@@ -1,25 +1,18 @@
-# ml_engine/base_model.py
-
 from abc import ABC, abstractmethod
 
-class BaseModel(ABC):
-    """
-    Abstract Base Class for all Machine Learning Models in the project.
-    Forces all models to have train, predict, save, and load methods.
-    """
-
+class Trainable(ABC):
     @abstractmethod
-    def train(self, X, y):
-        pass
-
+    def train(self, X, y): pass
+    
     @abstractmethod
-    def predict(self, X):
-        pass
+    def tune_and_train(self, X, y): pass
 
+class Predictable(ABC):
     @abstractmethod
-    def save_model(self, file_path):
-        pass
+    def predict(self, X): pass
+    
+    @abstractmethod
+    def evaluate(self, X, y): pass
 
-    @abstractmethod
-    def load_model(self, file_path):
-        pass
+class BaseModel(Trainable, Predictable, ABC):
+    pass
