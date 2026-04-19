@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class CarInput(BaseModel):
-    brand: int
+    brand: str     
     year: int
     mileage: int
-    fuel: int
+    fuel: str      
