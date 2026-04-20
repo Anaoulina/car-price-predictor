@@ -11,7 +11,7 @@ class AvitoScraper:
         self.parser = parser
         self.storage = storage
         self.pages_to_scrape = pages_to_scrape
-        self.base_url = "https://www.avito.ma/fr/maroc/voitures-%C3%A0_vendre?o="
+        self.base_url = "https://www.avito.ma/fr/maroc/voitures-%C3%A0_vendre"
 
     @retry_on_error(retries=3, delay=5)
     def _scrape_single_car(self, link):
@@ -37,13 +37,23 @@ class AvitoScraper:
         for page in range(1, self.pages_to_scrape + 1):
             try:
                 print(f"📄 Fetching links from Page {page}...")
-                driver.get(f"{self.base_url}{page}")
-                time.sleep(random.uniform(2, 4))
+                
+                page_url = f"{self.base_url}?o={page}"
+                driver.get(page_url)
+                
+                time.sleep(random.uniform(3, 5)) 
                 links = self.parser.extract_links(driver.page_source)
+                
+                if not links:
+                    print(f"⚠️ No links found on page {page}. Stopping link collection.")
+                    break
+                    
                 all_links.extend(links)
+                print(f"✅ Found {len(links)} links on page {page}")
+                
             except Exception as e:
-                print(f"⚠️ Page {page} skipped due to timeout.")
-                continue # Skip to next page
+                print(f"⚠️ Error on Page {page}: {e}")
+                continue 
                 
         main_browser.quit()
 

@@ -40,5 +40,11 @@ class AvitoParser:
         if car_info["Carburant"] == "N/A" and title_text != "N/A":
             if "diesel" in title_text.lower(): car_info["Carburant"] = "Diesel"
             elif "essence" in title_text.lower(): car_info["Carburant"] = "Essence"
+            
+        if car_info["Marque"] != "N/A":
+            car_info["Marque"] = car_info["Marque"].upper().strip()
+        if car_info["Modèle"] != "N/A":
+            car_info["Modèle"] = car_info["Modèle"].upper().strip()
+        
 
         return car_info
